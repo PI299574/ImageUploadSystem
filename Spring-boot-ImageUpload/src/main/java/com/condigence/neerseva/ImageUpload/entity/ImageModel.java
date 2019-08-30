@@ -1,5 +1,7 @@
 package com.condigence.neerseva.ImageUpload.entity;
 
+import java.util.Arrays;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -80,6 +82,11 @@ public class ImageModel {
 	 */
 	public void setPic(byte[] pic) {
 		this.pic = pic;
+	}
+
+	@Override
+	public String toString() {
+		return "ImageModel [id=" + id + ", name=" + name + ", type=" + type + ", pic=" + Arrays.toString(pic) + "]";
 	}
 
 }

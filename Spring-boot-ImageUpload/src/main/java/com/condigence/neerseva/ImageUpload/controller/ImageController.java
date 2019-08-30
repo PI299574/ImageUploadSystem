@@ -1,9 +1,8 @@
 package com.condigence.neerseva.ImageUpload.controller;
 
-import java.io.File;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -14,8 +13,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.condigence.neerseva.ImageUpload.config.CustomErrorType;
 import com.condigence.neerseva.ImageUpload.entity.ImageModel;
 import com.condigence.neerseva.ImageUpload.service.ImageService;
+import com.condigence.neerseva.ImageUpload.util.ImageUtil;
 
 @RestController
 @RequestMapping("/image")
@@ -25,51 +26,75 @@ public class ImageController {
 	@Autowired
 	ImageService imageService;
 
-	@PostMapping("/upload")
-	public ResponseEntity<?> uplaodImage(@RequestParam("myFile") MultipartFile file) throws Exception {
-
-		String message = "";
-		Resource resource = null;
-		File file1 = null;
-		ImageModel image = null;
-		ImageModel image1 = new ImageModel();
-		byte[] pic = null;
-		try {
-			image = imageService.store(file);
-			message = "You successfully uploaded " + file.getOriginalFilename() + "!";
-			System.out.println(message);
-			// resource = imageService.getImageFile(file.getOriginalFilename());
-			pic = imageService.getImageWithFileName(file.getOriginalFilename());
-
-		} catch (Exception e) {
-			message = "FAIL to upload " + file.getOriginalFilename() + "!";
-			e.printStackTrace(System.out);
-			throw new Exception(e);
-		}
-		// store(file);
-		image1.setPic(pic);
-		image1.setId(image.getId());
-		image1.setType(file.getContentType());
-		image1.setName(file.getOriginalFilename());
-		return ResponseEntity.status(HttpStatus.OK).body(image1);
-	}
+	public static final Logger logger = LoggerFactory.getLogger(ImageController.class);
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@PostMapping("/upload")
+	public ResponseEntity<?> uplaodImage(@RequestParam("myFile") MultipartFile file) throws Exception {
+		logger.info("In ImageController:::::uplaodImage*******************");
+		String message = "";
+		ImageModel savedImageObj = null;
+		ImageModel image = new ImageModel();
+		ImageUtil imgutil = new ImageUtil();
+		byte[] _pic = null;
+		try {
+			// save image into db and directory
+			savedImageObj = imageService.store(file);
+			message = "You successfully uploaded " + file.getOriginalFilename() + "!";
+			logger.info(message);
+			_pic = imgutil.getImageWithFileName(file.getOriginalFilename());
+		} catch (Exception e) {
+			message = "FAIL to upload " + file.getOriginalFilename() + "!";
+			logger.warn(message);
+			throw new Exception(e);
+		}
+		// Now return back the saved image from directory
+		if (null != _pic) {
+			image.setPic(_pic);
+			image.setId(savedImageObj.getId());
+			image.setType(file.getContentType());
+			image.setName(file.getOriginalFilename());
+		} else {
+			return new ResponseEntity(new CustomErrorType("Image Not Found || Uploaded image is not in correct format"),
+					HttpStatus.NOT_FOUND);
+		}
+		return ResponseEntity.status(HttpStatus.OK).body(image);
+	}
+
 	@GetMapping("/{id}")
 	public ResponseEntity<?> getImageWithId(@RequestParam("id") Long id) {
-		byte[] image = imageService.getImage(id);
+		logger.info("In ImageController:::::getImageWithId*******************");
+		ImageModel image = null;
+		try {
+			image = imageService.getImage(id);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		if (null == image) {
 			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
 		}
-		return new ResponseEntity<byte[]>(image, HttpStatus.OK);
+		// return new ResponseEntity<ImageModel>(image, HttpStatus.OK);
+		return ResponseEntity.status(HttpStatus.OK).body(image);
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	// This api would n't work as here we are fetching image Id based on image name,
+	// and image name may be same for 2 or more than 2 ID.
 	@GetMapping("/{name}")
 	public ResponseEntity<?> getImageWithName(@RequestParam("name") String name) {
-		Resource resource = imageService.getImageFile(name);
-		return new ResponseEntity<Resource>(resource, HttpStatus.OK);
-
+		logger.info("In ImageController:::::getImageWithName******************");
+		ImageModel image = null;
+		try {
+			image = imageService.getImageId(name);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if (null == image) {
+			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
+		}
+		// return new ResponseEntity<ImageModel>(image, HttpStatus.OK);
+		return ResponseEntity.status(HttpStatus.OK).body(image);
 	}
 
 	// @SuppressWarnings({ "rawtypes", "unchecked" })
