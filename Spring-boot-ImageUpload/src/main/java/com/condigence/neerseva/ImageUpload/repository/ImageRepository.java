@@ -10,7 +10,7 @@ import com.condigence.neerseva.ImageUpload.entity.ImageModel;
 
 public interface ImageRepository extends JpaRepository<ImageModel, Long> {
 
-	@Query("SELECT img.id FROM ImageModel img where img.name = :name")
-	Optional<ImageModel> getimageId(@Param("name") String name);
+	@Query("SELECT img FROM ImageModel img where img.imageName = :imageName")
+	Optional<ImageModel> getimageId(@Param("imageName") String imageName);
 
 }

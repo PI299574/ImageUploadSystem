@@ -24,6 +24,15 @@ public class ImageModel {
 	@Column(name = "type")
 	private String type;
 
+	@Column(name = "imagePath")
+	private String imagePath;
+
+	@Column(name = "imageSize")
+	private long imageSize;
+
+	@Column(name = "imageName") /// neerseva Image format : name(0,3)+datTime
+	private String imageName;
+
 	@Lob
 	@Column(name = "pic")
 	private byte[] pic;
@@ -84,9 +93,52 @@ public class ImageModel {
 		this.pic = pic;
 	}
 
+	/**
+	 * @return the imagePath
+	 */
+	public String getImagePath() {
+		return imagePath;
+	}
+
+	/**
+	 * @param imagePath the imagePath to set
+	 */
+	public void setImagePath(String imagePath) {
+		this.imagePath = imagePath;
+	}
+
+	/**
+	 * @return the imageSize
+	 */
+	public long getImageSize() {
+		return imageSize;
+	}
+
+	/**
+	 * @param l the imageSize to set
+	 */
+	public void setImageSize(long l) {
+		this.imageSize = l;
+	}
+
+	/**
+	 * @return the imageName
+	 */
+	public String getImageName() {
+		return imageName;
+	}
+
+	/**
+	 * @param imageName the imageName to set
+	 */
+	public void setImageName(String imageName) {
+		this.imageName = imageName;
+	}
+
 	@Override
 	public String toString() {
-		return "ImageModel [id=" + id + ", name=" + name + ", type=" + type + ", pic=" + Arrays.toString(pic) + "]";
+		return "ImageModel [id=" + id + ", name=" + name + ", type=" + type + ", pic=" + Arrays.toString(pic)
+				+ ", imagePath=" + imagePath + ", imageSize=" + imageSize + ", imageName=" + imageName + "]";
 	}
 
 }

@@ -10,6 +10,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +24,8 @@ public class ImageUtil {
 
 	// private final Path rootLocation = Paths.get("filestorage"); //in context with
 	// Project Path
-	String directory = "F:\\Directory1";
-	private final Path rootLocation = Paths.get(directory); // External Path of System
+	static String directory = "F:\\Directory1";
+	public final static Path rootLocation = Paths.get(directory); // External Path of System
 	public static final Logger logger = LoggerFactory.getLogger(ImageUtil.class);
 
 	public void createDirectory() {
@@ -40,6 +42,7 @@ public class ImageUtil {
 
 	public void storeImageinDirectory(MultipartFile file) throws IOException {
 		logger.info("*************file name******************* " + file.getInputStream());
+		String filepath = this.rootLocation.resolve(file.getOriginalFilename()).toString();
 		logger.info("*******original file path *****" + this.rootLocation.resolve(file.getOriginalFilename()));
 		try {
 			Files.copy(file.getInputStream(), this.rootLocation.resolve(file.getOriginalFilename()),
@@ -115,5 +118,15 @@ public class ImageUtil {
 		} catch (MalformedURLException e) {
 			throw new RuntimeException("FAIL!");
 		}
+	}
+
+	public String getDateTimeFormatter() {
+		LocalDateTime myDateObj = LocalDateTime.now();
+		System.out.println("Before formatting: " + myDateObj);
+		DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd-MM-yyyy_HH:mm:ss");
+
+		String formattedDate = myDateObj.format(myFormatObj);
+		System.out.println("After formatting: " + formattedDate);
+		return formattedDate;
 	}
 }

@@ -36,8 +36,13 @@ public class ImageService {
 		logger.info("*************file name******************* " + fileName);
 		image.setName(fileName);
 		image.setType(file.getContentType());
+		image.setImagePath(ImageUtil.rootLocation.resolve(file.getOriginalFilename()).toString());
+		image.setImageSize(file.getSize());
+		image.setImageName(fileName.substring(0, 3) + "_" + imgutil.getDateTimeFormatter());
 		// img.setPic(file.getBytes());//not storing the byte since byte length is too
 		// long
+
+		System.out.println("Image is " + image);
 		final ImageModel savedImage = imageRepository.save(image);
 		logger.info("***************Image saved*******************");
 		return savedImage;
@@ -67,15 +72,15 @@ public class ImageService {
 		ImageUtil imgutil = new ImageUtil();
 		ImageModel image = null;
 		try {
-			image = imageRepository.getimageId(name).get(); // since imagename are same for many image , we can't get
-															// their Id and this queryreturn error.
+			image = imageRepository.getimageId(name).get();
+
 			logger.info("Image detail is " + image);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		if (null != image) {
-			image.setPic(imgutil.getImageWithFileName(name));
+			image.setPic(imgutil.getImageWithFileName(image.getName()));
 		}
 		return image;
 	}

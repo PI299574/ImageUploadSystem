@@ -54,6 +54,10 @@ public class ImageController {
 			image.setId(savedImageObj.getId());
 			image.setType(file.getContentType());
 			image.setName(file.getOriginalFilename());
+			image.setImageName(savedImageObj.getImageName());
+			image.setImageSize(savedImageObj.getImageSize());
+			image.setImagePath(savedImageObj.getImagePath());
+			;
 		} else {
 			return new ResponseEntity(new CustomErrorType("Image Not Found || Uploaded image is not in correct format"),
 					HttpStatus.NOT_FOUND);
@@ -78,14 +82,12 @@ public class ImageController {
 		return ResponseEntity.status(HttpStatus.OK).body(image);
 	}
 
-	// This api would n't work as here we are fetching image Id based on image name,
-	// and image name may be same for 2 or more than 2 ID.
-	@GetMapping("/{name}")
-	public ResponseEntity<?> getImageWithName(@RequestParam("name") String name) {
+	@GetMapping("/{imageName}")
+	public ResponseEntity<?> getImageWithName(@RequestParam("imageName") String imageName) {
 		logger.info("In ImageController:::::getImageWithName******************");
 		ImageModel image = null;
 		try {
-			image = imageService.getImageId(name);
+			image = imageService.getImageId(imageName);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
