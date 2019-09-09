@@ -1,6 +1,7 @@
 package com.condigence.neerseva.ImageUpload.service;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +40,7 @@ public class ImageService {
 		image.setImagePath(ImageUtil.rootLocation.resolve(file.getOriginalFilename()).toString());
 		image.setImageSize(file.getSize());
 		image.setImageName(fileName.substring(0, 3) + "_" + imgutil.getDateTimeFormatter());
-		// img.setPic(file.getBytes());//not storing the byte since byte length is too
+		image.setPic(file.getBytes());// not storing the byte since byte length is too
 		// long
 
 		System.out.println("Image is " + image);
@@ -58,8 +59,11 @@ public class ImageService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
 		if (null != image) {
-			image.setPic(imgutil.getImageWithFileName(image.getName()));
+			if (null == image.getPic()) {
+				image.setPic(imgutil.getImageWithFileName(image.getName()));
+			}
 		}
 		logger.info("Image is " + image);
 		return image;
@@ -80,8 +84,22 @@ public class ImageService {
 			e.printStackTrace();
 		}
 		if (null != image) {
-			image.setPic(imgutil.getImageWithFileName(image.getName()));
+			if (null == image.getPic()) {
+				image.setPic(imgutil.getImageWithFileName(image.getName()));
+			}
 		}
 		return image;
+	}
+
+	public List<ImageModel> findAll() {
+		// TODO Auto-generated method stub
+		List<ImageModel> imageList = imageRepository.findAll();
+		ImageUtil imgutil = new ImageUtil();
+		for (ImageModel image : imageList) {
+			if (null == image.getPic()) {
+				image.setPic(imgutil.getImageWithFileName(image.getName()));
+			}
+		}
+		return imageList;
 	}
 }

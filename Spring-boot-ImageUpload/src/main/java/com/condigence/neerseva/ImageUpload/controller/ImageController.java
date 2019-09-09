@@ -1,5 +1,7 @@
 package com.condigence.neerseva.ImageUpload.controller;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +59,7 @@ public class ImageController {
 			image.setImageName(savedImageObj.getImageName());
 			image.setImageSize(savedImageObj.getImageSize());
 			image.setImagePath(savedImageObj.getImagePath());
-			;
+
 		} else {
 			return new ResponseEntity(new CustomErrorType("Image Not Found || Uploaded image is not in correct format"),
 					HttpStatus.NOT_FOUND);
@@ -65,9 +67,44 @@ public class ImageController {
 		return ResponseEntity.status(HttpStatus.OK).body(image);
 	}
 
+	@PostMapping("/db/upload")
+	public ResponseEntity<?> uplaodImageInDB(@RequestParam("myFile") MultipartFile file) throws Exception {
+		logger.info("In ImageController:::::uplaodImageInDB*******************");
+		String message = "";
+		ImageModel savedImageObj = null;
+		try {
+			// save image into db and directory
+			savedImageObj = imageService.store(file);
+			message = "You successfully uploaded " + file.getOriginalFilename() + "!";
+			logger.info(message);
+		} catch (Exception e) {
+			message = "FAIL to upload " + file.getOriginalFilename() + "!";
+			logger.warn(message);
+			throw new Exception(e);
+		}
+		return ResponseEntity.status(HttpStatus.OK).body(savedImageObj);
+	}
+
 	@GetMapping("/{id}")
 	public ResponseEntity<?> getImageWithId(@RequestParam("id") Long id) {
 		logger.info("In ImageController:::::getImageWithId*******************");
+		ImageModel image = null;
+		try {
+			image = imageService.getImage(id);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if (null == image) {
+			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
+		}
+		// return new ResponseEntity<ImageModel>(image, HttpStatus.OK);
+		return ResponseEntity.status(HttpStatus.OK).body(image);
+	}
+
+	@GetMapping("/db/{id}")
+	public ResponseEntity<?> getImageWithIdFromDb(@RequestParam("id") Long id) {
+		logger.info("In ImageController:::::getImageWithIdFromDb*******************");
 		ImageModel image = null;
 		try {
 			image = imageService.getImage(id);
@@ -99,15 +136,15 @@ public class ImageController {
 		return ResponseEntity.status(HttpStatus.OK).body(image);
 	}
 
-	// @SuppressWarnings({ "rawtypes", "unchecked" })
-	// @GetMapping(value = "/all")
-	// public ResponseEntity<List<ImageModel>> listAllImages() {
-	// List<ImageModel> imageList = imageRepository.findAll();
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@GetMapping(value = "/all")
+	public ResponseEntity<?> listAllImages() {
+		List<ImageModel> imageList = imageService.findAll();
 
-//		if (imageList.isEmpty()) {
-//			return new ResponseEntity(HttpStatus.NO_CONTENT);
-//		}
-	// return new ResponseEntity<List<ImageModel>>(imageList, HttpStatus.OK);
-	// }
+		if (imageList.isEmpty()) {
+			return new ResponseEntity(HttpStatus.NO_CONTENT);
+		}
+		return new ResponseEntity<List<ImageModel>>(imageList, HttpStatus.OK);
+	}
 
 }
